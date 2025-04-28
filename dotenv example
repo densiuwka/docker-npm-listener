@@ -5,7 +5,6 @@ NTFY_TOPIC=npm-docker-listener # NTFY topic to post to
 
 # Docker host configuration
 HOST_IP_ADDRESS=192.168.1.100 # Docker host IP address to set up proxy to
-DOCKER_PORT=4243 # Docker port (deprecated)
 
 # Nginx Proxy Manager configuration
 NPM_SERVER_URL=192.168.1.100:81 # NPM server IP address with port
