@@ -24,7 +24,7 @@ class NpmIntegration:
         npm_base_url = os.getenv('NPM_SERVER_URL')
         if not npm_base_url:
             logging.error("NPM_SERVER_URL not set in environment")
-            return None
+            return ''
         
         npm_api_url = f"{npm_base_url}/api/tokens"
         payload = {
@@ -41,7 +41,7 @@ class NpmIntegration:
 
             if not token or not expires_str:
                 logging.error("No token found in NPM token response")
-                return None
+                return ''
             
             expires_dt = datetime.strptime(expires_str, "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=timezone.utc)
             expiry_unix = expires_dt.timestamp()
@@ -50,19 +50,21 @@ class NpmIntegration:
             NpmIntegration._token_cache["expiry_time"] = expiry_unix
 
             logging.info("NPM Bearer Token acquired and cached")
-            if os.getenv('USE_NTFY_FOR_UPDATES').lower() == "true":
+            if os.getenv('USE_NTFY_FOR_UPDATES', '').lower() == "true":
                 ntfy.ntfy_post("New Bearer Token acquired!", "Token POST succeeded", "white_check_mark")
             return token
         
         except requests.RequestException as e:
             err_msg = f"Error getting NPM Bearer Token: {e}"
             logging.error(err_msg)
-            if os.getenv('USE_NTFY_FOR_UPDATES').lower() == "true":
+            if os.getenv('USE_NTFY_FOR_UPDATES', '').lower() == "true":
                 ntfy.ntfy_post(err_msg, "Token POST failed...", "warning", "high")
-            return None
+            return ''
+
+    from typing import Optional
 
     @staticmethod
-    def get_cert_id(domain:str) -> int:
+    def get_cert_id(domain:str) -> Optional[int]:
         """
         Retrieves the certificate ID for a given domain from NPM.
         Returns the certificate ID if found, otherwise returns None.
@@ -98,7 +100,7 @@ class NpmIntegration:
         except requests.RequestException as e:
             err_msg = f"Error getting certificate ID for domain {domain}: {e}"
             logging.error(err_msg)
-            if os.getenv('USE_NTFY_FOR_UPDATES').lower() == "true":
+            if os.getenv('USE_NTFY_FOR_UPDATES', '').lower() == "true":
                 ntfy.ntfy_post(err_msg, "Certificate ID GET failed...", "warning", "high")
             return None
 
@@ -146,7 +148,7 @@ class NpmIntegration:
             response = requests.post(npm_api_url, headers=headers, json=payload, timeout=10)
             if response.status_code == 201:
                 logging.info(f"New proxy host created: {host}")
-                if(os.getenv('USE_NTFY_FOR_UPDATES').upper() == "TRUE"):
+                if(os.getenv('USE_NTFY_FOR_UPDATES', '').lower() == "TRUE"):
                     ntfy.ntfy_post(f"{host} proxy host created!", "New proxy POST succeeded", "white_check_mark")
                 return True
             else:
