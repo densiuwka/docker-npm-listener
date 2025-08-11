@@ -4,6 +4,7 @@ import requests
 import time
 from datetime import datetime, timezone
 from ntfy_integration import NtfyIntegration as ntfy
+from typing import Optional
 
 class NpmIntegration:
     _token_cache = {
@@ -60,8 +61,6 @@ class NpmIntegration:
             if os.getenv('USE_NTFY_FOR_UPDATES', '').lower() == "true":
                 ntfy.ntfy_post(err_msg, "Token POST failed...", "warning", "high")
             return ''
-
-    from typing import Optional
 
     @staticmethod
     def get_cert_id(domain:str) -> Optional[int]:
