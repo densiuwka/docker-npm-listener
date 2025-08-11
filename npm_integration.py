@@ -148,7 +148,7 @@ class NpmIntegration:
             response = requests.post(npm_api_url, headers=headers, json=payload, timeout=10)
             if response.status_code == 201:
                 logging.info(f"New proxy host created: {host}")
-                if(os.getenv('USE_NTFY_FOR_UPDATES', '').lower() == "TRUE"):
+                if(os.getenv('USE_NTFY_FOR_UPDATES', '').upper() == "TRUE"):
                     ntfy.ntfy_post(f"{host} proxy host created!", "New proxy POST succeeded", "white_check_mark")
                 return True
             else:
